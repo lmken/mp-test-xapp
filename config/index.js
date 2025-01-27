@@ -18,7 +18,7 @@ app.use(express.json()); // Middleware to parse JSON requests
 // Serve the HTML with environment variables
 app.get('/', async (req, res) => {
   // Read the HTML file
-  let html = await fs.readFile(path.join(__dirname, 'index.html'), 'utf8');
+  let html = await fs.readFile(path.join(__dirname, '../src/public/index.html'), 'utf8');
   
   // Replace placeholders with actual API keys
   html = html.replace('XAMAN_API_KEY_PLACEHOLDER', process.env.XAMAN_API_KEY);
