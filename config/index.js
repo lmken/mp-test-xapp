@@ -5,7 +5,7 @@ import cors from 'cors'; // Import CORS middleware
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { promises as fs } from 'fs';
-import { signUrlRouter } from './src/routes/signUrl.mjs';
+import { signUrlRouter } from '../src/routes/signUrl.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
