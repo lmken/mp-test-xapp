@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy XRP with MoonPay</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e8ddff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .logo {
+            width: 80%;
+            max-width: 240px;
+            margin-bottom: 20px;
+        }
+
+        .loading-text {
+            color: #7D00FF;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        #moonpayFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loadingScreen" class="loading">
+            <img src="https://www.moonpay.com/assets/logo-full-purple.svg" alt="MoonPay" class="logo">
+            <p class="loading-text">Loading MoonPay...</p>
+        </div>
+        <iframe id="moonpayFrame" class="hidden"></iframe>
+    </div>
+    
+    <script src="https://xumm.app/assets/cdn/xumm.min.js"></script>
+    <script>
+        const xumm = new Xumm('XAMAN_API_KEY_PLACEHOLDER');
+        
+        async function initializeMoonPay() {
+            try {
+                console.log('Starting MoonPay initialization...');
+                
+                // Get wallet address from Xaman
+                console.log('Requesting wallet address from Xaman...');
+                const userWallet = await xumm.user.account;
+                console.log('Xaman response:', userWallet);
+
+                if (!userWallet) {
+                    console.error('No wallet address received from Xaman');
+                    throw new Error('Wallet address not available');
+                }
+
+                // Build MoonPay URL with user's wallet
+                console.log('Building MoonPay URL...');
+                const baseUrl = `https://buy.moonpay.com/?apiKey=MOONPAY_PUBLIC_KEY_PLACEHOLDER&baseCurrencyAmount=100&baseCurrencyCode=usd&currencyCode=xrp&defaultCurrencyCode=xrp`;
+                const moonpayUrl = `${baseUrl}&walletAddress=${userWallet}`;
+                console.log('MoonPay URL built:', moonpayUrl);
+
+                // Get signature from your server
+                console.log('Requesting signature from server...');
+                const response = await fetch(`/api/sign-url?url=${encodeURIComponent(moonpayUrl)}`);
+                if (!response.ok) {
+                    console.error('Server response not OK:', {
+                        status: response.status,
+                        statusText: response.statusText
+                    });
+                    throw new Error('Failed to get signature from server');
+                }
+                
+                const signature = await response.text();
+                console.log('Signature received:', signature);
+                
+                // Build final URL with signature
+                const finalUrl = `${moonpayUrl}&signature=${encodeURIComponent(signature)}`;
+                console.log('Final URL built:', finalUrl);
+                
+                // Show MoonPay widget in iframe
+                console.log('Setting up iframe...');
+                const iframe = document.getElementById('moonpayFrame');
+                const loadingScreen = document.getElementById('loadingScreen');
+                
+                iframe.src = finalUrl;
+                iframe.classList.remove('hidden');
+                loadingScreen.classList.add('hidden');
+                console.log('MoonPay widget loaded successfully');
+                
+            } catch (error) {
+                console.error('Detailed error information:', {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name
+                });
+                
+                if (error instanceof TypeError) {
+                    console.error('Network or fetch error detected');
+                }
+                
+                document.querySelector('.loading-text').textContent = 
+                    'Error loading MoonPay. Please try again later.';
+            }
+        }
+
+        // Initialize when Xaman is ready
+        xumm.on("ready", () => {
+            console.log("Xaman xApp ready event received");
+            initializeMoonPay();
+        });
+
+        // Add error handler for Xaman
+        xumm.on("error", (error) => {
+            console.error("Xaman error event received:", error);
+        });
+    </script>
+</body>
+</html> 
