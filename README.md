@@ -1,0 +1,1 @@
+A simple MoonPay xApp (on Xaman wallet) that uses Xaman APIs to get the user's wallet address and then opens the MoonPay widget in an iframe.
