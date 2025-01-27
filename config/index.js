@@ -2,10 +2,10 @@
 import 'dotenv/config'; // Load environment variables using ES module syntax
 import express from 'express'; // Import Express
 import cors from 'cors'; // Import CORS middleware
-import { signUrlRouter } from './signUrl.mjs'; // Import the named export
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { promises as fs } from 'fs';
+import { signUrlRouter } from './src/routes/signUrl.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
